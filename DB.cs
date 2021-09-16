@@ -209,9 +209,10 @@ namespace WindowsFormsApp1
                 pnltabs.Visible = false;
                 if (command == "" || flag != 0)
                 {
-                    sqlselectcomm = items[Array.IndexOf(names,name)].Sqlcomm;
-                    idnum = items[Array.IndexOf(names, name)].Num;
-                    Addtolist(items[Array.IndexOf(names, name)].Addlist);
+                    int index = Array.IndexOf(names, name);
+                    sqlselectcomm = items[index].Sqlcomm;
+                    idnum = items[index].Num;
+                    Addtolist(items[index].Addlist);
                     sqltempcomm = sqlselectcomm;
                 }
                 else

@@ -167,18 +167,6 @@ namespace WindowsFormsApp1
                                 INNER JOIN Студенты USING(Студенты_id)
                                 LEFT JOIN Дисциплины USING(Дисциплины_id)",6,addinglist[15])
         };
-        public class Item
-        {
-            public string Sqlcomm;
-            public int Num;
-            public string[] Addlist;
-            public Item(string sqlcomm, int num, string[] addlists)
-            {
-                Sqlcomm = sqlcomm;
-                Num = num;
-                Addlist = addlists;
-            }
-        }
         public void Addtolist(string[] addings)
         {
             foreach (string str in addings)

@@ -16,9 +16,9 @@ namespace WindowsFormsApp1
     {
         public string sqlselectcomm;
         public string sqltempcomm;
-        public int idnum;
-        public string name = "";
-        public int firstcleanrow;
+        public int ServiceId;
+        public string NameOfTable = "";
+        public int FirstCleanRow;
         public List<string> sqllist = new List<string>();
         public DataGridView dataGridView1;
         public Label label1;
@@ -77,7 +77,7 @@ namespace WindowsFormsApp1
                 {
                     sqlsortcomm += " DESC";
                 }
-                SelectQuerry(name, sqlsortcomm);
+                SelectQuerry(NameOfTable, sqlsortcomm);
             }
             catch (Exception ex)
             {
@@ -103,58 +103,58 @@ namespace WindowsFormsApp1
             new string[]{"Успеваемость.Студенты_id", "Студенты.ФИО", "Дисциплины.Название", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Оценки.Результат", "Формы_контроля.Тип", "Неизменяемо.Неизменяемо"},
             new string[]{"Академические_задолженности.Студенты_id", "Студенты.ФИО", "Дисциплины.Название", "Академические_задолженности.Дата_появления", "Академические_задолженности.Тип_задолженности"}
         };
-        public static Item[] items =
+        public static SelQuery[] items =
         {
-            new Item(@"SELECT Студенты.Студенты_id as Шифр, Студенты.ФИО, Студенты.Пол, Студенты.Номер_телефона, Студенты.Адрес, Студенты.Дата_рождения, Группы.Номер as Номер_группы, Формы_оплаты_обучения.Цена as Цена_обучения, COUNT(Академические_задолженности.Академические_задолженности_id) as Долги, Студенты.Студенты_id as `Служебный id`
+            new SelQuery(@"SELECT Студенты.Студенты_id as Шифр, Студенты.ФИО, Студенты.Пол, Студенты.Номер_телефона, Студенты.Адрес, Студенты.Дата_рождения, Группы.Номер as Номер_группы, Формы_оплаты_обучения.Цена as Цена_обучения, COUNT(Академические_задолженности.Академические_задолженности_id) as Долги, Студенты.Студенты_id as `Служебный id`
                             FROM Студенты
                             LEFT JOIN Группы USING(Группы_id)
                             LEFT JOIN Формы_оплаты_обучения USING(Формы_оплаты_обучения_id)
                             LEFT JOIN Академические_задолженности USING(Студенты_id)
                             GROUP BY Студенты_id, ФИО, Пол, Номер_телефона, Адрес, Дата_рождения, Группы.Номер",10,addinglist[0]),
-            new Item(@"SELECT Институты.Название, Институты.Декан, Институты.Институты_id as `Служебный id`
+            new SelQuery(@"SELECT Институты.Название, Институты.Декан, Институты.Институты_id as `Служебный id`
                                 FROM Институты",3,addinglist[1]),
-            new Item(@"SELECT Кафедры.Шифр, Кафедры.Название, Кафедры.Заведующий, Институты.Название as Институт, Кафедры.Кафедры_id as `Служебный id`
+            new SelQuery(@"SELECT Кафедры.Шифр, Кафедры.Название, Кафедры.Заведующий, Институты.Название as Институт, Кафедры.Кафедры_id as `Служебный id`
                                 FROM Кафедры
                                 LEFT JOIN Институты USING(Институты_id)",5,addinglist[2]),
-            new Item(@"SELECT Специальности.Шифр, Специальности.Название, Кафедры.Название as Кафедра, Специальности.Количество_курсов, Специальности.Специальности_id  as `Служебный id`
+            new SelQuery(@"SELECT Специальности.Шифр, Специальности.Название, Кафедры.Название as Кафедра, Специальности.Количество_курсов, Специальности.Специальности_id  as `Служебный id`
                                 FROM Специальности
                                 LEFT JOIN Кафедры USING(Кафедры_id)",5,addinglist[3]),
-            new Item(@"SELECT Группы.Курс, Группы.Поток, Группы.Номер, Специальности.Название as Специальность, Кураторы.ФИО as Куратор, Формы_обучения.Тип as `Форма обучения`, Группы.Группы_id  as `Служебный id`
+            new SelQuery(@"SELECT Группы.Курс, Группы.Поток, Группы.Номер, Специальности.Название as Специальность, Кураторы.ФИО as Куратор, Формы_обучения.Тип as `Форма обучения`, Группы.Группы_id  as `Служебный id`
                                 FROM Группы
                                 INNER JOIN Специальности USING(Специальности_id)
                                 LEFT JOIN Кураторы USING(Кураторы_id)
                                 INNER JOIN Формы_обучения USING(Формы_обучения_id)",7,addinglist[4]),
-            new Item(@"SELECT Учебные_планы.Пары_лекций as `Лекций по плану`, Учебные_планы.Пары_семинаров as `Семинаров по плану`, Учебные_планы.Семестр, Учебные_планы.Курсовая, Дисциплины.Название as Дисциплина, Специальности.Название as Специальность, Кафедры.Название as Кафедра, Формы_контроля.Тип as `Форма контроля`, Учебные_планы.Учебные_планы_id as `Служебный id`
+            new SelQuery(@"SELECT Учебные_планы.Пары_лекций as `Лекций по плану`, Учебные_планы.Пары_семинаров as `Семинаров по плану`, Учебные_планы.Семестр, Учебные_планы.Курсовая, Дисциплины.Название as Дисциплина, Специальности.Название as Специальность, Кафедры.Название as Кафедра, Формы_контроля.Тип as `Форма контроля`, Учебные_планы.Учебные_планы_id as `Служебный id`
                                 FROM Учебные_планы
                                 INNER JOIN Дисциплины USING(Дисциплины_id)
                                 INNER JOIN Специальности USING(Специальности_id)
                                 LEFT JOIN Кафедры ON Специальности.Кафедры_id=Кафедры.Кафедры_id
                                 INNER JOIN Формы_контроля USING(Формы_контроля_id)",9,addinglist[5]),
-            new Item(@"SELECT Дисциплины.Название as Дисциплина, Кафедры.Название as Кафедра, Дисциплины.Дисциплины_id as `Служебный id`
+            new SelQuery(@"SELECT Дисциплины.Название as Дисциплина, Кафедры.Название as Кафедра, Дисциплины.Дисциплины_id as `Служебный id`
                                 FROM Дисциплины
                                 LEFT JOIN Кафедры USING(Кафедры_id)",3,addinglist[6]),
-            new Item(@"SELECT Посещаемость.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Посещаемость.Семестр, Посещаемость.Пары_лекций as `Посещено лекций`, Посещаемость.Пары_семинаров as `Посещено семинаров`, Посещаемость.Посещаемость_id as `Служебный id`
+            new SelQuery(@"SELECT Посещаемость.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Посещаемость.Семестр, Посещаемость.Пары_лекций as `Посещено лекций`, Посещаемость.Пары_семинаров as `Посещено семинаров`, Посещаемость.Посещаемость_id as `Служебный id`
                                 FROM Посещаемость
                                 INNER JOIN Студенты USING(Студенты_id)
                                 INNER JOIN Дисциплины USING(Дисциплины_id)",7,addinglist[7]),
-            new Item(@"SELECT Формы_оплаты_обучения.Цена, Формы_оплаты_обучения.Формы_оплаты_обучения_id as `Служебный id`
+            new SelQuery(@"SELECT Формы_оплаты_обучения.Цена, Формы_оплаты_обучения.Формы_оплаты_обучения_id as `Служебный id`
                                 FROM Формы_оплаты_обучения",2,addinglist[8]),
-            new Item(@"SELECT Формы_обучения.Тип, Формы_обучения.Формы_обучения_id as `Служебный id`
+            new SelQuery(@"SELECT Формы_обучения.Тип, Формы_обучения.Формы_обучения_id as `Служебный id`
                                 FROM Формы_обучения",2,addinglist[9]),
-            new Item(@"SELECT Кураторы.ФИО, Кураторы.Кураторы_id as `Служебный id`
+            new SelQuery(@"SELECT Кураторы.ФИО, Кураторы.Кураторы_id as `Служебный id`
                                 FROM Кураторы",2,addinglist[10]),
-            new Item(@"SELECT Формы_контроля.Тип as Форма, Формы_контроля.Формы_контроля_id as `Служебный id`
+            new SelQuery(@"SELECT Формы_контроля.Тип as Форма, Формы_контроля.Формы_контроля_id as `Служебный id`
                                 FROM Формы_контроля",2,addinglist[11]),
-            new Item(@"SELECT Кандидаты_на_исключение.Студенты_id as Шифр, Студенты.ФИО, Кандидаты_на_исключение.Причина, Кандидаты_на_исключение.Кандидаты_на_исключение_id as `Служебный id`
+            new SelQuery(@"SELECT Кандидаты_на_исключение.Студенты_id as Шифр, Студенты.ФИО, Кандидаты_на_исключение.Причина, Кандидаты_на_исключение.Кандидаты_на_исключение_id as `Служебный id`
                                 FROM Кандидаты_на_исключение
                                 INNER JOIN Студенты USING(Студенты_id)",4,addinglist[12]),
-            new Item(@"SELECT Курсовые.Тема, Курсовые.Курс, Курсовые.Студенты_id as Шифр, Студенты.ФИО, Оценки.Результат, Дисциплины.Название as Дисциплина, Кафедры.Название as Кафедра, Курсовые.Курсовые_id as `Служебный id`
+            new SelQuery(@"SELECT Курсовые.Тема, Курсовые.Курс, Курсовые.Студенты_id as Шифр, Студенты.ФИО, Оценки.Результат, Дисциплины.Название as Дисциплина, Кафедры.Название as Кафедра, Курсовые.Курсовые_id as `Служебный id`
                                 FROM Курсовые
                                 INNER JOIN Студенты USING(Студенты_id)
                                 LEFT JOIN Оценки USING(Оценки_id)
                                 INNER JOIN Дисциплины USING(Дисциплины_id)
                                 INNER JOIN Кафедры USING(Кафедры_id)",8,addinglist[13]),
-            new Item(@"SELECT Успеваемость.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Посещаемость.Пары_лекций as `Посещено лекций`, Посещаемость.Пары_семинаров as `Посещено семинаров`, Учебные_планы.Пары_лекций as `Лекций по плану`, Учебные_планы.Пары_семинаров as `Семинаров по плану`, Посещаемость.Пары_лекций/Учебные_планы.Пары_лекций*100 as `Процент посещения лекций`, Посещаемость.Пары_семинаров/Учебные_планы.Пары_семинаров*100 as `Процент посещения семинаров`,  Оценки.Результат, Формы_контроля.Тип as `Форма контроля`, Посещаемость.Семестр, Успеваемость.Успеваемость_id  as `Служебный id`
+            new SelQuery(@"SELECT Успеваемость.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Посещаемость.Пары_лекций as `Посещено лекций`, Посещаемость.Пары_семинаров as `Посещено семинаров`, Учебные_планы.Пары_лекций as `Лекций по плану`, Учебные_планы.Пары_семинаров as `Семинаров по плану`, Посещаемость.Пары_лекций/Учебные_планы.Пары_лекций*100 as `Процент посещения лекций`, Посещаемость.Пары_семинаров/Учебные_планы.Пары_семинаров*100 as `Процент посещения семинаров`,  Оценки.Результат, Формы_контроля.Тип as `Форма контроля`, Посещаемость.Семестр, Успеваемость.Успеваемость_id  as `Служебный id`
                                 FROM Успеваемость
                                 INNER JOIN Студенты USING(Студенты_id)
                                 INNER JOIN Посещаемость USING(Посещаемость_id)
@@ -162,7 +162,7 @@ namespace WindowsFormsApp1
                                 INNER JOIN Учебные_планы USING(Учебные_планы_id)
                                 LEFT JOIN Оценки USING(Оценки_id)
                                 INNER JOIN Формы_контроля ON Успеваемость.Формы_контроля_id=Формы_контроля.Формы_контроля_id",13,addinglist[14]),
-            new Item(@"SELECT Академические_задолженности.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Академические_задолженности.Дата_появления, Академические_задолженности.Тип_задолженности, Академические_задолженности.Академические_задолженности_id as `Служебный id`
+            new SelQuery(@"SELECT Академические_задолженности.Студенты_id as Шифр, Студенты.ФИО, Дисциплины.Название as Дисциплина, Академические_задолженности.Дата_появления, Академические_задолженности.Тип_задолженности, Академические_задолженности.Академические_задолженности_id as `Служебный id`
                                 FROM Академические_задолженности
                                 INNER JOIN Студенты USING(Студенты_id)
                                 LEFT JOIN Дисциплины USING(Дисциплины_id)",6,addinglist[15])
@@ -183,23 +183,22 @@ namespace WindowsFormsApp1
                 {
                     throw new Exception("Таблица не выбрана");
                 }
-                if (name != n)
+                if (NameOfTable != n)
                 {
                     sqllist.Clear();
                 }
                 SD.DataTable table = new SD.DataTable();
                 dataGridView1.DataSource = null;
-                name = n;
-                name = name.Replace('_', ' ');
+                NameOfTable = n;
+                label1.Text = NameOfTable.Replace('_', ' ');
                 label1.Visible = true;
-                label1.Text = name;
-                name = name.Replace(' ', '_');
+                NameOfTable = NameOfTable.Replace(' ', '_');
                 pnltabs.Visible = false;
                 if (command == "" || flag != 0)
                 {
-                    int index = Array.IndexOf(names, name);
+                    int index = Array.IndexOf(names, NameOfTable);
                     sqlselectcomm = items[index].Sqlcomm;
-                    idnum = items[index].Num;
+                    ServiceId = items[index].Num;
                     Addtolist(items[index].Addlist);
                     sqltempcomm = sqlselectcomm;
                 }
@@ -212,11 +211,11 @@ namespace WindowsFormsApp1
                 MySqlDataAdapter sql_data = new MySqlDataAdapter(sqlselectcomm, constant.getjoin());
                 sql_data.Fill(table);
                 dataGridView1.DataSource = table;
-                dataGridView1.Columns[idnum - 1].Visible = false;
-                firstcleanrow = 0;
-                while (dataGridView1[0, firstcleanrow].Value != null)
+                dataGridView1.Columns[ServiceId - 1].Visible = false;
+                FirstCleanRow = 0;
+                while (dataGridView1[0, FirstCleanRow].Value != null)
                 {
-                    firstcleanrow++;
+                    FirstCleanRow++;
                 }
             }
             catch (Exception ex)
@@ -258,7 +257,7 @@ namespace WindowsFormsApp1
                     sqlselectcomm = sqltempcomm;
                 }
                 string sqlfindcomm = $"SELECT * FROM ({sqlselectcomm}) subquerry WHERE {dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].HeaderText} LIKE '%{tbxFind.Text}%'";
-                SelectQuerry(name, sqlfindcomm);
+                SelectQuerry(NameOfTable, sqlfindcomm);
             }
             catch (Exception ex)
             {
@@ -269,7 +268,7 @@ namespace WindowsFormsApp1
         {
             try
             {
-                if (name == "")
+                if (NameOfTable == "")
                 {
                     throw new Exception("Таблица, не выбрана, пожалуйста сначала нажмите 'Выбрать таблицу'");
                 }
@@ -284,12 +283,12 @@ namespace WindowsFormsApp1
                 }
                 string sqlupdatecomm = "";
                 string tabname = s.Substring(0, s.IndexOf('.'));
-                rtbxelem.Text += name + ' ' + tabname;
-                if (s == "Дисциплины.Название" && name == "Успеваемость")
+                rtbxelem.Text += NameOfTable + ' ' + tabname;
+                if (s == "Дисциплины.Название" && NameOfTable == "Успеваемость")
                 {
                     throw new Exception("Дисциплину, по которой ведётся учёт успеваемости, невозможно изменить. Удалите и начните новый учёт, либо измените данные в других таблицах (например-название дисциплины в таблице 'дисциплины').");
                 }
-                if ((s == "Студенты.ФИО") && (name != "Студенты"))
+                if ((s == "Студенты.ФИО") && (NameOfTable != "Студенты"))
                 {
                     throw new Exception("Невозможно изменить ФИО студента не в соответствующей таблице, попробуйте изменить шифр");
                 }
@@ -299,13 +298,13 @@ namespace WindowsFormsApp1
                 }
                 else
                 {
-                    if (name == tabname)
+                    if (NameOfTable == tabname)
                     {
-                        sqlupdatecomm = $"UPDATE {name} SET {colname}='{newinf}' WHERE {name}.{name}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[idnum - 1].Value.ToString())}";
+                        sqlupdatecomm = $"UPDATE {NameOfTable} SET {colname}='{newinf}' WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
                     }
                     else
                     {
-                        sqlupdatecomm = $"UPDATE {name} SET {name}.{tabname}_id=(SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') WHERE {name}.{name}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[idnum - 1].Value.ToString())}";
+                        sqlupdatecomm = $"UPDATE {NameOfTable} SET {NameOfTable}.{tabname}_id=(SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
                         sqltempcomm = $"SELECT COUNT(*) FROM (SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') subquerry";
                         MySqlCommand commtemp = new MySqlCommand(sqltempcomm, constant.conn);
                         if (commtemp.ExecuteScalar().ToString() == "0")
@@ -319,11 +318,11 @@ namespace WindowsFormsApp1
                 MySqlCommand comm = new MySqlCommand(sqlupdatecomm, constant.conn);
                 MySqlDataReader reader = comm.ExecuteReader();
                 reader.Close();
-                SelectQuerry(name, sqlselectcomm, 1);
+                SelectQuerry(NameOfTable, sqlselectcomm, 1);
             }
             catch (Exception ex)
             {
-                SelectQuerry(name, sqlselectcomm, 1);
+                SelectQuerry(NameOfTable, sqlselectcomm, 1);
                 MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
@@ -331,17 +330,17 @@ namespace WindowsFormsApp1
         {
             try
             {
-                if (name == "Кандидаты_на_исключение")
+                if (NameOfTable == "Кандидаты_на_исключение")
                 {
                     throw new Exception("В данной таблице нельзя удалять строки, удалите соответствующую академическую задолженность, после чего перезапустите программу или нажмите 'Обновить список на исключение'");
                 }
-                string sqldeletecomm = $"DELETE FROM {name} WHERE {name}.{name}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[idnum - 1].Value.ToString())}";
+                string sqldeletecomm = $"DELETE FROM {NameOfTable} WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
                 rtbxoldquerry.Text = rtbxquerry.Text;
                 rtbxquerry.Text = sqldeletecomm;
                 MySqlCommand comm = new MySqlCommand(sqldeletecomm, constant.conn);
                 MySqlDataReader reader = comm.ExecuteReader();
                 reader.Close();
-                SelectQuerry(name, sqlselectcomm);
+                SelectQuerry(NameOfTable, sqlselectcomm);
             }
             catch (Exception ex)
             {
@@ -354,11 +353,11 @@ namespace WindowsFormsApp1
             {
                 rtbxelem.Text = "";
                 List<string> insertlist = new List<string>();
-                for (int i = 0; i < idnum - 1; i++)
+                for (int i = 0; i < ServiceId - 1; i++)
                 {
-                    insertlist.Add(dataGridView1[i, firstcleanrow].Value.ToString());
+                    insertlist.Add(dataGridView1[i, FirstCleanRow].Value.ToString());
                 }
-                for (int i = 0; i < idnum - 1; i++)
+                for (int i = 0; i < ServiceId - 1; i++)
                 {
                     rtbxelem.Text += ',' + insertlist[i];
                 }
@@ -367,7 +366,7 @@ namespace WindowsFormsApp1
                 string temp2 = "";
                 string stemp = "";
                 MySqlCommand commtemp;
-                switch (name)
+                switch (NameOfTable)
                 {
                     case "Студенты":
                         if ((insertlist[1] == "") || (insertlist[2] == "") || (insertlist[3] == "") || (insertlist[4] == "") || (insertlist[5] == "") || (insertlist[6] == "") || (insertlist[7] == ""))
@@ -582,7 +581,7 @@ namespace WindowsFormsApp1
                 MySqlCommand comm = new MySqlCommand(sqlinsertcomm, constant.conn);
                 MySqlDataReader reader = comm.ExecuteReader();
                 reader.Close();
-                SelectQuerry(name, sqlselectcomm);
+                SelectQuerry(NameOfTable, sqlselectcomm);
             }
             catch (Exception ex)
             {
@@ -605,9 +604,9 @@ namespace WindowsFormsApp1
                 comm = new MySqlCommand(sqlexpcomm, constant.conn);
                 reader = comm.ExecuteReader();
                 reader.Close();
-                if ((name == "Кандидаты_на_исключение") || (name == "Академические_задолженности"))
+                if ((NameOfTable == "Кандидаты_на_исключение") || (NameOfTable == "Академические_задолженности"))
                 {
-                    SelectQuerry(name);
+                    SelectQuerry(NameOfTable);
                 }
             }
             catch (Exception ex)
@@ -647,9 +646,9 @@ namespace WindowsFormsApp1
                 comm = new MySqlCommand(sqlmovecomm, constant.conn);
                 reader = comm.ExecuteReader();
                 reader.Close();
-                if (name == "Академические_задолженности" || name == "Группы")
+                if (NameOfTable == "Академические_задолженности" || NameOfTable == "Группы")
                 {
-                    SelectQuerry(name);
+                    SelectQuerry(NameOfTable);
                 }
             }
             catch (Exception ex)

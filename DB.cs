@@ -21,24 +21,24 @@ namespace WindowsFormsApp1
         public int FirstCleanRow;
         public List<string> sqllist = new List<string>();
         public DataGridView dataGridView1;
-        public Label label1;
-        public CheckBox CheckBox1;
-        public RichTextBox rtbxquerry;
+        public Label TabLable;
+        public CheckBox TabMenu;
+        public RichTextBox QuerryBox;
         public RichTextBox rtbxelem;
         public RichTextBox rtbxoldquerry;
         public TextBox tbxFind;
         public TextBox tbxmove;
         public Panel pnltabs;
         public Form1 workform;
-        Globalum constant = new Globalum("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;", 366, new MySqlConnection("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;"));
+        public Service service = new Service("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;", 366, new MySqlConnection("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;"));
 
         public DB(Form1 mainform)
         {
             workform = mainform;
             dataGridView1 = workform.getdgv();
-            label1 = workform.getlbl();
-            CheckBox1 = workform.getcbx();
-            rtbxquerry = workform.getrbx1();
+            TabLable = workform.getlbl();
+            TabMenu = workform.getcbx();
+            QuerryBox = workform.getrbx1();
             rtbxelem = workform.getrbx2();
             rtbxoldquerry = workform.getrbx3();
             tbxFind = workform.gettbx1();
@@ -49,9 +49,9 @@ namespace WindowsFormsApp1
         {
             try
             {
-                if (constant.conn.State == SD.ConnectionState.Closed)
+                if (service.getconn().State == SD.ConnectionState.Closed)
                 {
-                    constant.conn.Open();
+                    service.getconn().Open();
                     MessageBox.Show("Successfully connected");
                 }
                 expired();
@@ -73,7 +73,7 @@ namespace WindowsFormsApp1
                 }
                 string sqlsortcomm = sqlselectcomm;
                 sqlsortcomm += $" ORDER BY `{dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].HeaderText}`";
-                if (CheckBox1.Checked == true)
+                if (TabMenu.Checked == true)
                 {
                     sqlsortcomm += " DESC";
                 }
@@ -167,13 +167,7 @@ namespace WindowsFormsApp1
                                 INNER JOIN Студенты USING(Студенты_id)
                                 LEFT JOIN Дисциплины USING(Дисциплины_id)",6,addinglist[15])
         };
-        public void Addtolist(string[] addings)
-        {
-            foreach (string str in addings)
-            {
-                sqllist.Add(str);
-            }
-        }
+
         public string[] names = {"Студенты", "Институты", "Кафедры", "Специальности", "Группы", "Учебные_планы", "Дисциплины", "Посещаемость", "Формы_оплаты_обучения", "Формы_обучения", "Кураторы", "Формы_контроля", "Кандидаты_на_исключение", "Курсовые", "Успеваемость", "Академические_задолженности" };
         public void SelectQuerry(string n, string command = "", int flag = 0)
         {
@@ -190,8 +184,8 @@ namespace WindowsFormsApp1
                 SD.DataTable table = new SD.DataTable();
                 dataGridView1.DataSource = null;
                 NameOfTable = n;
-                label1.Text = NameOfTable.Replace('_', ' ');
-                label1.Visible = true;
+                TabLable.Text = NameOfTable.Replace('_', ' ');
+                TabLable.Visible = true;
                 NameOfTable = NameOfTable.Replace(' ', '_');
                 pnltabs.Visible = false;
                 if (command == "" || flag != 0)
@@ -199,16 +193,15 @@ namespace WindowsFormsApp1
                     int index = Array.IndexOf(names, NameOfTable);
                     sqlselectcomm = items[index].Sqlcomm;
                     ServiceId = items[index].Num;
-                    Addtolist(items[index].Addlist);
+                    service.Addtolist(sqllist,items[index].Addlist);
                     sqltempcomm = sqlselectcomm;
                 }
                 else
                 {
                     sqlselectcomm = command;
                 }
-                rtbxoldquerry.Text = rtbxquerry.Text;
-                rtbxquerry.Text = sqlselectcomm;
-                MySqlDataAdapter sql_data = new MySqlDataAdapter(sqlselectcomm, constant.getjoin());
+                service.QuerryBoxSwap(QuerryBox, rtbxoldquerry, sqlselectcomm);
+                MySqlDataAdapter sql_data = new MySqlDataAdapter(sqlselectcomm, service.getjoin());
                 sql_data.Fill(table);
                 dataGridView1.DataSource = table;
                 dataGridView1.Columns[ServiceId - 1].Visible = false;
@@ -306,18 +299,15 @@ namespace WindowsFormsApp1
                     {
                         sqlupdatecomm = $"UPDATE {NameOfTable} SET {NameOfTable}.{tabname}_id=(SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
                         sqltempcomm = $"SELECT COUNT(*) FROM (SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') subquerry";
-                        MySqlCommand commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        MySqlCommand commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Введённое значение не было найдено в таблице {tabname}, перепишете изменяемое значение, либо добавьте новое в вышеописанную таблицу");
                         }
                     }
                 }
-                rtbxoldquerry.Text = rtbxquerry.Text;
-                rtbxquerry.Text = sqlupdatecomm;
-                MySqlCommand comm = new MySqlCommand(sqlupdatecomm, constant.conn);
-                MySqlDataReader reader = comm.ExecuteReader();
-                reader.Close();
+                service.QuerryBoxSwap(QuerryBox, rtbxoldquerry, sqlupdatecomm);
+                service.DataReader(sqlupdatecomm,service.getconn());
                 SelectQuerry(NameOfTable, sqlselectcomm, 1);
             }
             catch (Exception ex)
@@ -334,12 +324,10 @@ namespace WindowsFormsApp1
                 {
                     throw new Exception("В данной таблице нельзя удалять строки, удалите соответствующую академическую задолженность, после чего перезапустите программу или нажмите 'Обновить список на исключение'");
                 }
-                string sqldeletecomm = $"DELETE FROM {NameOfTable} WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
-                rtbxoldquerry.Text = rtbxquerry.Text;
-                rtbxquerry.Text = sqldeletecomm;
-                MySqlCommand comm = new MySqlCommand(sqldeletecomm, constant.conn);
-                MySqlDataReader reader = comm.ExecuteReader();
-                reader.Close();
+                service.QuerryBoxSwap(QuerryBox,rtbxoldquerry, $@"DELETE FROM {NameOfTable}
+                WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}");
+                service.DataReader($@"DELETE FROM {NameOfTable}
+                WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}", service.getconn());
                 SelectQuerry(NameOfTable, sqlselectcomm);
             }
             catch (Exception ex)
@@ -442,7 +430,7 @@ namespace WindowsFormsApp1
                             throw new Exception("Не все обязательные поля заполнены(1,3,4,5,6). Введите все необходимые данные и попробуйте снова. Если количество посещённых пар ещё неизвестно или равно нулю введите 0.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM Студенты WHERE Студенты_id={insertlist[0]}";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данный шифр студента недействителен, перепишете изменяемое значение, либо добавьте новое в в таблицу студентов.");
@@ -496,7 +484,7 @@ namespace WindowsFormsApp1
                             throw new Exception("Вводить ФИО студента не нужно. Введите шифр и программа сама вставит необходимое ФИО.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM Студенты WHERE Студенты_id={int.Parse(insertlist[0])}";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данный шифр студента недействителен, перепишете изменяемое значение, либо добавьте новое в в таблицу студентов.");
@@ -510,7 +498,7 @@ namespace WindowsFormsApp1
                             throw new Exception("Не все обязательные поля заполнены(1,2,3,6). Введите все необходимые данные и попробуйте снова.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM Студенты WHERE Студенты_id={int.Parse(insertlist[2])}";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данный шифр студента недействителен, перепишете изменяемое значение, либо добавьте новое в в таблицу студентов.");
@@ -524,19 +512,19 @@ namespace WindowsFormsApp1
                             throw new Exception("Не все обязательные поля заполнены(1,3,12). Введите все необходимые данные и попробуйте снова.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM Студенты WHERE Студенты_id={int.Parse(insertlist[0])}";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данный шифр студента недействителен, перепишете изменяемое значение, либо добавьте новое в в таблицу студентов.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM (SELECT Посещаемость_id FROM Посещаемость WHERE Дисциплины_id=(SELECT Дисциплины_id FROM Дисциплины WHERE Название='{insertlist[2]}') AND Студенты_id={int.Parse(insertlist[0])} AND Семестр={int.Parse(insertlist[11])}) subquerry";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данные этого студента по заданной дисциплине в указанном семестре не найдены. Проверьте введённую информацию.");
                         }
                         sqltempcomm = $"SELECT COUNT(*) FROM (SELECT Учебные_планы_id FROM Учебные_планы WHERE Дисциплины_id=(SELECT Дисциплины_id FROM Дисциплины WHERE Название='{insertlist[2]}') AND Специальности_id=(SELECT Специальности_id FROM Специальности WHERE Специальности_id=(SELECT Специальности_id FROM Группы WHERE Группы_id=(SELECT Группы_id FROM Студенты WHERE Студенты_id={int.Parse(insertlist[0])}))) AND Семестр={int.Parse(insertlist[11])}) subquerry";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Учебный план заданной дисциплине и специальности в указанный семестр не найден. Проверьте введённую информацию.");
@@ -565,7 +553,7 @@ namespace WindowsFormsApp1
                         }
                         stemp = DateTime.Parse(insertlist[3]).Year.ToString() + '-' + temp1 + DateTime.Parse(insertlist[3]).Month.ToString() + '-' + temp2 + DateTime.Parse(insertlist[3]).Day.ToString();
                         sqltempcomm = $"SELECT COUNT(*) FROM Студенты WHERE Студенты_id={int.Parse(insertlist[0])}";
-                        commtemp = new MySqlCommand(sqltempcomm, constant.conn);
+                        commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
                             throw new Exception($"Данный шифр студента недействителен, перепишете изменяемое значение, либо добавьте новое в в таблицу студентов.");
@@ -576,11 +564,8 @@ namespace WindowsFormsApp1
                     default:
                         throw new Exception("Таблица для вставки не выбрана, пожалуйста сначала нажмите 'Выбрать таблицу'");
                 }
-                rtbxoldquerry.Text = rtbxquerry.Text;
-                rtbxquerry.Text = sqlinsertcomm;
-                MySqlCommand comm = new MySqlCommand(sqlinsertcomm, constant.conn);
-                MySqlDataReader reader = comm.ExecuteReader();
-                reader.Close();
+                service.QuerryBoxSwap(QuerryBox,rtbxoldquerry,sqlinsertcomm);
+                service.DataReader(sqlinsertcomm,service.getconn());
                 SelectQuerry(NameOfTable, sqlselectcomm);
             }
             catch (Exception ex)
@@ -592,18 +577,15 @@ namespace WindowsFormsApp1
         {
             try
             {
-                string sqlexpcomm = $"INSERT INTO Кандидаты_на_исключение (Студенты_id, Причина) SELECT Студенты_id, Тип_задолженности FROM Академические_задолженности WHERE DATEDIFF(CURDATE(),Дата_появления)>{constant.getper()} AND Академические_задолженности.Отправка_на_комиссию='Нет'";
-                MySqlCommand comm = new MySqlCommand(sqlexpcomm, constant.conn);
-                MySqlDataReader reader = comm.ExecuteReader();
-                reader.Close();
-                sqlexpcomm = "UPDATE Академические_задолженности SET Отправка_на_комиссию='Да' WHERE DATEDIFF(CURDATE(),Дата_появления)>366 AND Академические_задолженности.Отправка_на_комиссию='Нет'";
-                comm = new MySqlCommand(sqlexpcomm, constant.conn);
-                reader = comm.ExecuteReader();
-                reader.Close();
-                sqlexpcomm = "DELETE FROM Кандидаты_на_исключение WHERE Студенты_id NOT IN(SELECT Студенты_id FROM Академические_задолженности) AND Причина IN ('Не сдан экзамен','Не сдан зачёт','Не сдана практика','Не сдана курсовая')";
-                comm = new MySqlCommand(sqlexpcomm, constant.conn);
-                reader = comm.ExecuteReader();
-                reader.Close();
+                service.DataReader($@"INSERT INTO Кандидаты_на_исключение (Студенты_id, Причина) 
+                SELECT Студенты_id, Тип_задолженности 
+                FROM Академические_задолженности 
+                WHERE DATEDIFF(CURDATE(),Дата_появления)>{service.getper()} AND Академические_задолженности.Отправка_на_комиссию='Нет'", service.getconn());
+                service.DataReader(@"UPDATE Академические_задолженности 
+                SET Отправка_на_комиссию='Да' 
+                WHERE DATEDIFF(CURDATE(),Дата_появления)>366 AND Академические_задолженности.Отправка_на_комиссию='Нет'", service.getconn());
+                service.DataReader(@"DELETE FROM Кандидаты_на_исключение 
+                WHERE Студенты_id NOT IN(SELECT Студенты_id FROM Академические_задолженности) AND Причина IN ('Не сдан экзамен','Не сдан зачёт','Не сдана практика','Не сдана курсовая')", service.getconn());
                 if ((NameOfTable == "Кандидаты_на_исключение") || (NameOfTable == "Академические_задолженности"))
                 {
                     SelectQuerry(NameOfTable);
@@ -618,7 +600,7 @@ namespace WindowsFormsApp1
         {
             try
             {
-                string sqlmovecomm = $@"INSERT INTO Академические_задолженности (Студенты_id, Дисциплины_id, Дата_появления, Тип_задолженности, Отправка_на_комиссию) 
+                service.DataReader($@"INSERT INTO Академические_задолженности (Студенты_id, Дисциплины_id, Дата_появления, Тип_задолженности, Отправка_на_комиссию) 
                     SELECT Студенты.Студенты_id, Дисциплины.Дисциплины_id, CURDATE(), CONCAT('Не сдан ',Формы_контроля.Тип), 'Нет' FROM Студенты
                     INNER JOIN Посещаемость USING(Студенты_id)
                     INNER JOIN Дисциплины USING(Дисциплины_id)
@@ -626,26 +608,17 @@ namespace WindowsFormsApp1
                     INNER JOIN Группы USING(Группы_id)
                     INNER JOIN Оценки USING(Оценки_id)
                     INNER JOIN Формы_контроля USING(Формы_контроля_id)
-                    WHERE Группы.Номер='{team}' AND Оценки.Результат='2'";
-                MySqlCommand comm = new MySqlCommand(sqlmovecomm, constant.conn);
-                MySqlDataReader reader = comm.ExecuteReader();
-                reader.Close();
-                sqlmovecomm = $@"INSERT INTO Академические_задолженности(Студенты_id, Дисциплины_id, Дата_появления, Тип_задолженности, Отправка_на_комиссию)
+                    WHERE Группы.Номер='{team}' AND Оценки.Результат='2'", service.getconn());
+                service.DataReader($@"INSERT INTO Академические_задолженности(Студенты_id, Дисциплины_id, Дата_появления, Тип_задолженности, Отправка_на_комиссию)
                     SELECT Студенты.Студенты_id, Курсовые.Дисциплины_id, CURDATE(), 'Не сдана курсовая', 'Нет' FROM Студенты
                     INNER JOIN Группы USING(Группы_id)
                     INNER JOIN Курсовые USING(Студенты_id)
                     INNER JOIN Оценки USING(Оценки_id)
-                    WHERE Группы.Номер='{team}' AND Оценки.Результат='2'";
-                comm = new MySqlCommand(sqlmovecomm, constant.conn);
-                reader = comm.ExecuteReader();
-                reader.Close();
-                sqlmovecomm = $@"UPDATE Группы
+                    WHERE Группы.Номер='{team}' AND Оценки.Результат='2'", service.getconn());
+                service.DataReader($@"UPDATE Группы
 		            SET Курс=Курс+1
 		            WHERE Номер='{team}' 
-                    AND Курс NOT IN (SELECT Количество_курсов FROM Специальности WHERE Специальности.Специальности_id=Группы.Специальности_id)";
-                comm = new MySqlCommand(sqlmovecomm, constant.conn);
-                reader = comm.ExecuteReader();
-                reader.Close();
+                    AND Курс NOT IN (SELECT Количество_курсов FROM Специальности WHERE Специальности.Специальности_id=Группы.Специальности_id)", service.getconn());
                 if (NameOfTable == "Академические_задолженности" || NameOfTable == "Группы")
                 {
                     SelectQuerry(NameOfTable);

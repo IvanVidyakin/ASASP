@@ -14,23 +14,22 @@ namespace WindowsFormsApp1
 {
     class DB
     {
-        public string sqlselectcomm;
-        public string sqltempcomm;
-        public int ServiceId;
-        public string NameOfTable = "";
-        public int FirstCleanRow;
-        public List<string> sqllist = new List<string>();
-        public DataGridView dataGridView1;
-        public Label TabLable;
-        public CheckBox TabMenu;
-        public RichTextBox QuerryBox;
-        public RichTextBox rtbxelem;
-        public RichTextBox rtbxoldquerry;
-        public TextBox tbxFind;
-        public TextBox tbxmove;
-        public Panel pnltabs;
-        public Form1 workform;
-        public Service service = new Service("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;", 366, new MySqlConnection("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;"));
+        public string sqlselectcomm; //text of the select query
+        public string sqltempcomm; //temp text of the query
+        public int ServiceId; //id of the service column in the table 
+        public string NameOfTable = ""; //name of the table
+        public int FirstCleanRow; //id of the first empty row of the table
+        public List<string> sqllist = new List<string>(); //list of the location fields
+        public DataGridView dataGridView1; //table
+        public Label TabLable; //name of the table
+        public CheckBox TabMenu; //table selection menu
+        public RichTextBox QuerryBox; //text of previous query
+        public RichTextBox rtbxelem; //list of elements
+        public RichTextBox rtbxoldquerry; //text of previous previous query
+        public TextBox tbxFind; //search menu
+        public Panel pnltabs; //panel of table selection menu
+        public Form1 workform; //application form
+        public Service service = new Service("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;", 366, new MySqlConnection("Server=localhost;Database=mydb;Uid=root;pwd=root;charset=utf8;")); //service data of the application
 
         public DB(Form1 mainform)
         {
@@ -42,7 +41,6 @@ namespace WindowsFormsApp1
             rtbxelem = workform.getrbx2();
             rtbxoldquerry = workform.getrbx3();
             tbxFind = workform.gettbx1();
-            tbxmove = workform.gettbx2();
             pnltabs = workform.getpnl();
         }
         public void DBConnection()
@@ -103,7 +101,7 @@ namespace WindowsFormsApp1
             new string[]{"Успеваемость.Студенты_id", "Студенты.ФИО", "Дисциплины.Название", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Неизменяемо.Неизменяемо", "Оценки.Результат", "Формы_контроля.Тип", "Неизменяемо.Неизменяемо"},
             new string[]{"Академические_задолженности.Студенты_id", "Студенты.ФИО", "Дисциплины.Название", "Академические_задолженности.Дата_появления", "Академические_задолженности.Тип_задолженности"}
         };
-        public static SelQuery[] items =
+        public static SelQuery[] selects =
         {
             new SelQuery(@"SELECT Студенты.Студенты_id as Шифр, Студенты.ФИО, Студенты.Пол, Студенты.Номер_телефона, Студенты.Адрес, Студенты.Дата_рождения, Группы.Номер as Номер_группы, Формы_оплаты_обучения.Цена as Цена_обучения, COUNT(Академические_задолженности.Академические_задолженности_id) as Долги, Студенты.Студенты_id as `Служебный id`
                             FROM Студенты
@@ -191,9 +189,9 @@ namespace WindowsFormsApp1
                 if (command == "" || flag != 0)
                 {
                     int index = Array.IndexOf(names, NameOfTable);
-                    sqlselectcomm = items[index].Sqlcomm;
-                    ServiceId = items[index].Num;
-                    service.Addtolist(sqllist,items[index].Addlist);
+                    sqlselectcomm = selects[index].Sqlcomm;
+                    ServiceId = selects[index].Num;
+                    service.Addtolist(sqllist,selects[index].Addlist);
                     sqltempcomm = sqlselectcomm;
                 }
                 else
@@ -269,10 +267,7 @@ namespace WindowsFormsApp1
                 string colname = s.Substring(s.IndexOf('.') + 1);
                 if (colname.IndexOf("Дата") != -1)
                 {
-                    string tempday = newinf.Substring(0, 2);
-                    string tempmonth = newinf.Substring(3, 2);
-                    string tempyear = newinf.Substring(6, 4);
-                    newinf = tempyear + '-' + tempmonth + '-' + tempday;
+                    newinf = newinf.Substring(6, 4) + '-' + newinf.Substring(3, 2) + '-' + newinf.Substring(0, 2);
                 }
                 string sqlupdatecomm = "";
                 string tabname = s.Substring(0, s.IndexOf('.'));
@@ -335,6 +330,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
+        
         public void INSERTDB()
         {
             try

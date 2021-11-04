@@ -247,7 +247,9 @@ namespace WindowsFormsApp1
                 {
                     sqlselectcomm = sqltempcomm;
                 }
-                string sqlfindcomm = $"SELECT * FROM ({sqlselectcomm}) subquerry WHERE {dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].HeaderText} LIKE '%{tbxFind.Text}%'";
+                string sqlfindcomm = $@"SELECT * 
+                FROM ({sqlselectcomm}) subquerry 
+                WHERE {dataGridView1.Columns[dataGridView1.CurrentCell.ColumnIndex].HeaderText} LIKE '%{tbxFind.Text}%'";
                 SelectQuerry(NameOfTable, sqlfindcomm);
             }
             catch (Exception ex)
@@ -292,8 +294,11 @@ namespace WindowsFormsApp1
                     }
                     else
                     {
-                        sqlupdatecomm = $"UPDATE {NameOfTable} SET {NameOfTable}.{tabname}_id=(SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
-                        sqltempcomm = $"SELECT COUNT(*) FROM (SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') subquerry";
+                        sqlupdatecomm = $@"UPDATE {NameOfTable} 
+                        SET {NameOfTable}.{tabname}_id=(SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') 
+                        WHERE {NameOfTable}.{NameOfTable}_id={int.Parse(dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[ServiceId - 1].Value.ToString())}";
+                        sqltempcomm = $@"SELECT COUNT(*) 
+                        FROM (SELECT DISTINCT {tabname}.{tabname}_id FROM {tabname} WHERE {tabname}.{colname}='{newinf}') subquerry";
                         MySqlCommand commtemp = new MySqlCommand(sqltempcomm, service.getconn());
                         if (commtemp.ExecuteScalar().ToString() == "0")
                         {
@@ -613,8 +618,7 @@ namespace WindowsFormsApp1
                     WHERE Группы.Номер='{team}' AND Оценки.Результат='2'", service.getconn());
                 service.DataReader($@"UPDATE Группы
 		            SET Курс=Курс+1
-		            WHERE Номер='{team}' 
-                    AND Курс NOT IN (SELECT Количество_курсов FROM Специальности WHERE Специальности.Специальности_id=Группы.Специальности_id)", service.getconn());
+		            WHERE Номер='{team}' AND Курс NOT IN (SELECT Количество_курсов FROM Специальности WHERE Специальности.Специальности_id=Группы.Специальности_id)", service.getconn());
                 if (NameOfTable == "Академические_задолженности" || NameOfTable == "Группы")
                 {
                     SelectQuerry(NameOfTable);

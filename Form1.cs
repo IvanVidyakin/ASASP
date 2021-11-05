@@ -48,10 +48,6 @@ namespace WindowsFormsApp1
         {
             return tbxFind;
         }
-        public TextBox gettbx2()
-        {
-            return tbxmove;
-        }
 
         public Panel getpnl()
         {

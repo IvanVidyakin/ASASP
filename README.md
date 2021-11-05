@@ -1,4 +1,4 @@
-ASOAP
+ASASP
 =============================
 Welcome to the automated system of accounting of students' progress.
 
